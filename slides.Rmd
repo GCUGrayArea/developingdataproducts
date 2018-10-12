@@ -1,0 +1,45 @@
+---
+title: "Developing Data Products Final Project"
+author: "GSV Bemusement Park"
+date: "October 11, 2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(plotly)
+library(shiny)
+```
+
+## Week 4: Shiny App and Slides
+
+This app was created the week of October 8th. It creates a simple and intuitive GUI for calculating various properties of an experiment that will be analyzed using a t-test.
+
+## How it works
+
+The app has four possible inputs, clearly labeled: a sample size, an effect size in standard errors, a significance level and a statistical power. Given three of these, the app will calculate the fourth value and indicate which one it calculated.  The `power.t.test()` function from R's `stats` package is used for this calculation in the `server.R` file regardless of which inputs are provided:
+```{r echo = TRUE, eval = TRUE}
+power.t.test(n = 50, delta = 1.5, sd = 1, sig.level = .001)$power
+```
+```{r echo = TRUE, eval = TRUE}
+power.t.test(delta = 0.6, sig.level = .001, power = 0.95)$n
+```
+
+## How it doesn't work
+
+As mentioned, given three parameters of the `power.t.test` function, the app calculates the fourth. Given four of them or three or fewer, it will display this error message:
+```{r}
+print("ERROR! NEED EXACTLY ONE NULL PARAMETER!")
+```
+This error message is always displayed on launching the app because the app checks inputs but none have been entered yet. `power.t.test` will generate its own errors, which the app will display, if no solution exists for the given inputs.
+
+## How to provide input
+Sample size, effect size and power have a wider variety of potentially desirable values, so they're collected in `ui.R` via `numericInput()` for flexibility.By contrast, unless we specifically want to calculate it, there are only a handful of commonly used significance levels, so these are selected from via a radio button:
+`radioButtons("sig", "Significance level", choices = c("TBD" = NA,".05" = .05,`
+        `".01" = .01, ".001" = .001, "Five-sigma" =  2.86*10**-7), inline = TRUE)`
+Selecting the `TBD` option will cause the app to treat it as `NULL`. The five-sigma option corresponds to the five-standard error level conventionally used as the standard of discovery in particle physics.
+
+The app can be found at https://gsvbemusementpark.shinyapps.io/experiment/ .
+
+Code and a copy of this presentation can be found at https://github.com/GSVBemusementPark/developingdataproducts
